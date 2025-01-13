@@ -24,5 +24,5 @@ def generate_tsp_instance(num_points, file_name):
     print(f"Instance saved to {file_name}")
 
 # Generate TSP instances of sizes 20, 30, and 40
-generate_tsp_instance(45, "45.tsp")
-generate_tsp_instance(50, "50.tsp")
+generate_tsp_instance(25, "25.tsp")
+generate_tsp_instance(35, "35.tsp")

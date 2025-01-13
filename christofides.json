@@ -1,0 +1,38 @@
+[
+    {
+        "tipo": "christofides",
+        "tempo": 0.008260250091552734,
+        "memoria": 77.8564453125,
+        "tamanho": 5
+    },
+    {
+        "tipo": "christofides",
+        "tempo": 0.002609729766845703,
+        "memoria": 41.482421875,
+        "tamanho": 10
+    },
+    {
+        "tipo": "christofides",
+        "tempo": 0.004019498825073242,
+        "memoria": 55.779296875,
+        "tamanho": 15
+    },
+    {
+        "tipo": "christofides",
+        "tempo": 0.005524158477783203,
+        "memoria": 71.341796875,
+        "tamanho": 20
+    },
+    {
+        "tipo": "christofides",
+        "tempo": 1.7098770141601562,
+        "memoria": 4398.919921875,
+        "tamanho": 280
+    },
+    {
+        "tipo": "christofides",
+        "tempo": 0.06296420097351074,
+        "memoria": 335.703125,
+        "tamanho": 48
+    }
+]

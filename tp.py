@@ -1,3 +1,5 @@
+import argparse
+import json
 import numpy as np
 import networkx as nx
 import math
@@ -6,6 +8,7 @@ import tracemalloc
 import os
 import gc
 from utils import read_tsplib
+
 
 def graph_to_adj_matrix(graph):
     """
@@ -25,40 +28,20 @@ def graph_to_adj_matrix(graph):
 
     return adj_matrix.tolist()
 
-# TSP com Branch and Bound
+
 class BranchAndBound:
     def __init__(self, adj_matrix):
-        """
-        Configura o algoritmo Branch and Bound para resolver o problema do TSP.
-
-        :param adj_matrix: Matriz de adjacência representando o problema.
-        """
         self.adj_matrix = adj_matrix
         self.num_nodes = len(adj_matrix)
         self.best_path = []
         self.min_cost = float('inf')
 
     def _calculate_min_edges(self, node):
-        """
-        Calcula o menor e o segundo menor peso de arestas conectadas a um nó.
-
-        :param node: Índice do nó para cálculo.
-        :return: Menor e segundo menor peso.
-        """
         edges = [self.adj_matrix[node][i] for i in range(self.num_nodes) if i != node]
         first, second = sorted(edges)[:2] if len(edges) > 1 else (edges[0], float('inf'))
         return first, second
 
     def _explore(self, current_bound, current_cost, level, current_path, visited):
-        """
-        Realiza a recursão para explorar todas as possibilidades de caminhos.
-
-        :param current_bound: Limite inferior para o caminho atual.
-        :param current_cost: Custo acumulado do caminho atual.
-        :param level: Nível da recursão.
-        :param current_path: Caminho atual.
-        :param visited: Conjunto de nós já visitados.
-        """
         if level == self.num_nodes:
             final_cost = current_cost + self.adj_matrix[current_path[-1]][current_path[0]]
             if final_cost < self.min_cost:
@@ -86,11 +69,6 @@ class BranchAndBound:
                     current_path.pop()
 
     def solve(self):
-        """
-        Resolve o problema do TSP com o algoritmo Branch and Bound.
-
-        :return: (custo mínimo, melhor caminho)
-        """
         current_bound = sum(sum(self._calculate_min_edges(i)) for i in range(self.num_nodes)) / 2
         visited = [False] * self.num_nodes
         visited[0] = True
@@ -98,21 +76,12 @@ class BranchAndBound:
         self._explore(current_bound, 0, 1, [0], visited)
         return self.min_cost, self.best_path
 
+
 class Christofides:
     def __init__(self, graph):
-        """
-        Inicializa o algoritmo de Christofides para resolver o TSP.
-
-        :param graph: Grafo do NetworkX representando o problema
-        """
         self.graph = graph
 
     def solve(self):
-        """
-        Resolve o TSP utilizando o algoritmo de Christofides.
-
-        :return: (caminho aproximado, custo do caminho)
-        """
         mst = nx.minimum_spanning_tree(self.graph, weight='weight')
         odd_degree_nodes = [node for node, degree in mst.degree() if degree % 2 == 1]
 
@@ -122,7 +91,7 @@ class Christofides:
                 u, v = odd_degree_nodes[i], odd_degree_nodes[j]
                 odd_graph.add_edge(u, v, weight=self.graph[u][v]['weight'])
 
-        min_matching = nx.algorithms.matching.min_weight_matching(odd_graph, maxcardinality=True)
+        min_matching = nx.algorithms.matching.min_weight_matching(odd_graph)
 
         multi_graph = nx.MultiGraph(mst)
         for u, v in min_matching:
@@ -143,21 +112,12 @@ class Christofides:
 
         return hamiltonian_path, cost
 
+
 class TwiceAroundTheTree:
     def __init__(self, graph):
-        """
-        Inicializa o algoritmo Twice-Around-the-Tree para resolver o TSP.
-
-        :param graph: Grafo do NetworkX representando o problema
-        """
         self.graph = graph
 
     def solve(self):
-        """
-        Resolve o TSP utilizando Twice-Around-the-Tree.
-
-        :return: (caminho aproximado, custo do caminho)
-        """
         mst = nx.minimum_spanning_tree(self.graph, weight='weight')
 
         eulerian_graph = nx.MultiGraph(mst)
@@ -177,70 +137,77 @@ class TwiceAroundTheTree:
 
         return hamiltonian_path, cost
 
-# Função para processar um arquivo específico
-def process_file(filepath):
-    print(f"\nProcessando arquivo: {filepath}")
+
+def process_file(filepath, algorithm):
     graph = read_tsplib(filepath)
-    print(f"Grafo carregado com sucesso do arquivo {filepath}!")
 
-    print("\nTwice-Around-the-Tree:")
-    start_time_tat = time.time()
-    tracemalloc.start()
-    solver_tat = TwiceAroundTheTree(graph)
-    best_path_tat, best_cost_tat = solver_tat.solve()
-    end_time_tat = time.time()
-    end_mem_tat = tracemalloc.take_snapshot()
-    tracemalloc.stop()
-    mem_stats_tat = end_mem_tat.statistics('lineno')
-    total_mem_tat = sum(stat.size for stat in mem_stats_tat)
+    if algorithm == "twice":
+        start_time = time.time()
+        tracemalloc.start()
+        solver = TwiceAroundTheTree(graph)
+        _, cost = solver.solve()
+        end_time = time.time()
+        end_mem = tracemalloc.take_snapshot()
+        tracemalloc.stop()
+        mem_stats = end_mem.statistics('lineno')
+        total_mem = sum(stat.size for stat in mem_stats)
+        return {"tipo": "twice", "tempo": end_time - start_time, "memoria": total_mem / 1024, "tamanho": len(graph.nodes)}
 
-    print("Caminho aproximado:", best_path_tat)
-    print("Custo do caminho:", best_cost_tat)
-    print("Tempo de execução: {:.6f} segundos".format(end_time_tat - start_time_tat))
-    print("Memória usada: {:.2f} KB".format(total_mem_tat / 1024))
+    elif algorithm == "christofides":
+        start_time = time.time()
+        tracemalloc.start()
+        solver = Christofides(graph)
+        _, cost = solver.solve()
+        end_time = time.time()
+        end_mem = tracemalloc.take_snapshot()
+        tracemalloc.stop()
+        mem_stats = end_mem.statistics('lineno')
+        total_mem = sum(stat.size for stat in mem_stats)
+        return {"tipo": "christofides", "tempo": end_time - start_time, "memoria": total_mem / 1024, "tamanho": len(graph.nodes)}
 
-    print("\nChristofides:")
-    start_time_christofides = time.time()
-    tracemalloc.start()
-    solver_christofides = Christofides(graph)
-    best_path_christofides, best_cost_christofides = solver_christofides.solve()
-    end_time_christofides = time.time()
-    end_mem_christofides = tracemalloc.take_snapshot()
-    tracemalloc.stop()
-    mem_stats_christofides = end_mem_christofides.statistics('lineno')
-    total_mem_christofides = sum(stat.size for stat in mem_stats_christofides)
+    elif algorithm == "branch":
+        adj_matrix = graph_to_adj_matrix(graph)
+        gc.collect()
+        tracemalloc.start()
+        start_time = time.time()
+        solver = BranchAndBound(adj_matrix)
+        _, cost = solver.solve()
+        end_time = time.time()
+        end_mem = tracemalloc.take_snapshot()
+        tracemalloc.stop()
+        mem_stats = end_mem.statistics('lineno')
+        total_mem = sum(stat.size for stat in mem_stats)
+        return {"tipo": "branch", "tempo": end_time - start_time, "memoria": total_mem / 1024, "tamanho": len(graph.nodes)}
 
-    print("Caminho aproximado:", best_path_christofides)
-    print("Custo do caminho:", best_cost_christofides)
-    print("Tempo de execução: {:.6f} segundos".format(end_time_christofides - start_time_christofides))
-    print("Memória usada: {:.2f} KB".format(total_mem_christofides / 1024))
+    else:
+        return None
 
-    print("\nBranch and Bound:")
-    adj_matrix = graph_to_adj_matrix(graph)
-
-    gc.collect()
-    tracemalloc.start()
-    start_time_bb = time.time()
-    solver_bb = BranchAndBound(adj_matrix)
-    best_cost_bb, best_path_bb = solver_bb.solve()
-    end_time_bb = time.time()
-    end_mem_bb = tracemalloc.take_snapshot()
-    tracemalloc.stop()
-    mem_stats_bb = end_mem_bb.statistics('lineno')
-    total_mem_bb = sum(stat.size for stat in mem_stats_bb)
-
-    print("Melhor caminho:", best_path_bb)
-    print("Custo do melhor caminho:", best_cost_bb)
-    print("Tempo de execução: {:.6f} segundos".format(end_time_bb - start_time_bb))
-    print("Memória usada: {:.2f} KB".format(total_mem_bb / 1024))
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Resolver o problema do TSP com diferentes algoritmos.")
+    parser.add_argument(
+        "-a", "--algorithm",
+        choices=["branch", "christofides", "twice"],
+        required=True,
+        help="Escolha o algoritmo a ser usado: '-b' para Branch and Bound, '-c' para Christofides, '-t' para Twice."
+    )
+    args = parser.parse_args()
+
     data_dir = "data"
-    filenames = ["10.tsp", "20.tsp", "30.tsp", "40.tsp"]
+    filenames = ["5.tsp", "10.tsp", "15.tsp", "20.tsp", "a280.tsp", "att48.tsp"]
+    results = []
 
     for filename in filenames:
         filepath = os.path.join(data_dir, filename)
         if os.path.exists(filepath):
-            process_file(filepath)
+            result = process_file(filepath, args.algorithm)
+            results.append(result)
         else:
             print(f"Arquivo não encontrado: {filepath}")
+
+    # Salvar os resultados em um arquivo JSON com o nome do algoritmo
+    output_filename = f"{args.algorithm}.json"
+    with open(output_filename, "w") as f:
+        json.dump(results, f, indent=4)
+
+    print(f"Resultados salvos em '{output_filename}'")

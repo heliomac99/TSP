@@ -74,7 +74,7 @@ class BranchAndBound:
         visited[0] = True
 
         self._explore(current_bound, 0, 1, [0], visited)
-        return self.min_cost, self.best_path
+        return self.best_path, self.min_cost
 
 
 class Christofides:
@@ -136,77 +136,103 @@ class TwiceAroundTheTree:
                    for i in range(len(hamiltonian_path) - 1))
 
         return hamiltonian_path, cost
+    
 
+def measure_performance(solver_class, graph, is_branch_and_bound=False):
+    start_time = time.time()
+    tracemalloc.start()
 
-def process_file(filepath, algorithm):
-    graph = read_tsplib(filepath)
-
-    if algorithm == "twice":
-        start_time = time.time()
-        tracemalloc.start()
-        solver = TwiceAroundTheTree(graph)
-        _, cost = solver.solve()
-        end_time = time.time()
-        end_mem = tracemalloc.take_snapshot()
-        tracemalloc.stop()
-        mem_stats = end_mem.statistics('lineno')
-        total_mem = sum(stat.size for stat in mem_stats)
-        return {"tipo": "twice", "tempo": end_time - start_time, "memoria": total_mem / 1024, "tamanho": len(graph.nodes)}
-
-    elif algorithm == "christofides":
-        start_time = time.time()
-        tracemalloc.start()
-        solver = Christofides(graph)
-        _, cost = solver.solve()
-        end_time = time.time()
-        end_mem = tracemalloc.take_snapshot()
-        tracemalloc.stop()
-        mem_stats = end_mem.statistics('lineno')
-        total_mem = sum(stat.size for stat in mem_stats)
-        return {"tipo": "christofides", "tempo": end_time - start_time, "memoria": total_mem / 1024, "tamanho": len(graph.nodes)}
-
-    elif algorithm == "branch":
+    if is_branch_and_bound:
         adj_matrix = graph_to_adj_matrix(graph)
         gc.collect()
-        tracemalloc.start()
-        start_time = time.time()
-        solver = BranchAndBound(adj_matrix)
-        _, cost = solver.solve()
-        end_time = time.time()
-        end_mem = tracemalloc.take_snapshot()
-        tracemalloc.stop()
-        mem_stats = end_mem.statistics('lineno')
-        total_mem = sum(stat.size for stat in mem_stats)
-        return {"tipo": "branch", "tempo": end_time - start_time, "memoria": total_mem / 1024, "tamanho": len(graph.nodes)}
-
+        solver = solver_class(adj_matrix)
     else:
+        solver = solver_class(graph)
+
+    best_path, cost = solver.solve()
+    end_time = time.time()
+
+    end_mem = tracemalloc.take_snapshot()
+    tracemalloc.stop()
+    mem_stats = end_mem.statistics('lineno')
+    total_mem = sum(stat.size for stat in mem_stats)
+
+    return {
+        "tempo": end_time - start_time,
+        "memoria": total_mem / 1024,
+        "tamanho": len(graph.nodes),
+        "custo": cost
+    }
+
+def process_file(filepath, algorithm, opt=None):
+    graph = read_tsplib(filepath)
+
+    solver_map = {
+        "twice": (TwiceAroundTheTree, False),
+        "christofides": (Christofides, False),
+        "branch": (BranchAndBound, True)
+    }
+
+    if algorithm not in solver_map:
         return None
 
+    solver_class, is_branch_and_bound = solver_map[algorithm]
+    performance_data = measure_performance(solver_class, graph, is_branch_and_bound)
+
+    if opt is not None:
+        performance_data["proporcao"] = float(performance_data["custo"]) / opt
+        del performance_data["custo"]
+
+    performance_data["tipo"] = algorithm
+    return performance_data
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Resolver o problema do TSP com diferentes algoritmos.")
-    parser.add_argument(
-        "-a", "--algorithm",
-        choices=["branch", "christofides", "twice"],
-        required=True,
-        help="Escolha o algoritmo a ser usado: '-b' para Branch and Bound, '-c' para Christofides, '-t' para Twice."
-    )
-    args = parser.parse_args()
-
     data_dir = "data"
-    filenames = ["5.tsp", "10.tsp", "15.tsp", "20.tsp", "a280.tsp", "att48.tsp"]
+    small_tests = ["5.tsp", "10.tsp", "15.tsp", "20.tsp"]
+    large_tests = [
+        ("berlin52.tsp", 7542),
+        ("ch130.tsp", 6110),
+        ("a280.tsp", 2579),
+        ("d493.tsp", 35002),
+        ("d657.tsp", 48912),
+        ("rat783.tsp", 8806),
+        ("u1060.tsp", 224094),
+        ("d1291.tsp", 50801),
+        ("u1817.tsp", 57201),
+        ("u2319.tsp", 234256)
+    ]
+
     results = []
 
-    for filename in filenames:
+    # Processar pequenos testes
+    for filename in small_tests:
         filepath = os.path.join(data_dir, filename)
         if os.path.exists(filepath):
-            result = process_file(filepath, args.algorithm)
-            results.append(result)
+            branch_result = process_file(filepath, "branch")
+            opt = float(branch_result["custo"])
+            branch_result["proporcao"] = 1.0  # Branch retorna o ótimo
+            del branch_result["custo"]
+            results.append(branch_result)
+
+            for algo in ["christofides", "twice"]:
+                result = process_file(filepath, algo, opt=opt)
+                results.append(result)
         else:
             print(f"Arquivo não encontrado: {filepath}")
 
-    # Salvar os resultados em um arquivo JSON com o nome do algoritmo
-    output_filename = f"{args.algorithm}.json"
+    # Processar grandes testes
+    for filename, opt in large_tests:
+        filepath = os.path.join(data_dir, filename)
+        if os.path.exists(filepath):
+            for algo in ["christofides", "twice"]:
+                result = process_file(filepath, algo, opt=opt)
+                results.append(result)
+        else:
+            print(f"Arquivo não encontrado: {filepath}")
+
+    # Salvar os resultados em um arquivo JSON na pasta 'results'
+    os.makedirs('results', exist_ok=True)
+    output_filename = os.path.join('results', "report.json")
     with open(output_filename, "w") as f:
         json.dump(results, f, indent=4)
 

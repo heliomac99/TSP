@@ -1,0 +1,226 @@
+[
+    {
+        "tempo": 0.004167795181274414,
+        "memoria": 11.65625,
+        "tamanho": 5,
+        "tipo": "branch",
+        "proporcao": 1.0
+    },
+    {
+        "tempo": 0.001672983169555664,
+        "memoria": 104.3486328125,
+        "tamanho": 5,
+        "proporcao": 1.0864902278247455,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 0.00042057037353515625,
+        "memoria": 15.2265625,
+        "tamanho": 5,
+        "proporcao": 1.203479077984788,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 0.021599292755126953,
+        "memoria": 9.0615234375,
+        "tamanho": 10,
+        "tipo": "branch",
+        "proporcao": 1.0
+    },
+    {
+        "tempo": 0.001310586929321289,
+        "memoria": 43.490234375,
+        "tamanho": 10,
+        "proporcao": 1.1043130044806375,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 0.0007293224334716797,
+        "memoria": 22.1484375,
+        "tamanho": 10,
+        "proporcao": 1.1539762949700723,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 0.9072608947753906,
+        "memoria": 13.578125,
+        "tamanho": 15,
+        "tipo": "branch",
+        "proporcao": 1.0
+    },
+    {
+        "tempo": 0.001714944839477539,
+        "memoria": 43.7587890625,
+        "tamanho": 15,
+        "proporcao": 1.0093544693059917,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 0.0010831356048583984,
+        "memoria": 29.9453125,
+        "tamanho": 15,
+        "proporcao": 1.3224241602036926,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 236.48613476753235,
+        "memoria": 21.8984375,
+        "tamanho": 20,
+        "tipo": "branch",
+        "proporcao": 1.0
+    },
+    {
+        "tempo": 0.0026710033416748047,
+        "memoria": 80.0869140625,
+        "tamanho": 20,
+        "proporcao": 1.1126107365391045,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 0.0014646053314208984,
+        "memoria": 41.5859375,
+        "tamanho": 20,
+        "proporcao": 1.1774076467563603,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 0.015221118927001953,
+        "memoria": 302.951171875,
+        "tamanho": 52,
+        "proporcao": 1.1394901808258793,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 0.00500035285949707,
+        "memoria": 108.40234375,
+        "tamanho": 52,
+        "proporcao": 1.3798946394693627,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 0.11895203590393066,
+        "memoria": 1124.2900390625,
+        "tamanho": 130,
+        "proporcao": 1.1051187995438831,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 0.024816513061523438,
+        "memoria": 368.544921875,
+        "tamanho": 130,
+        "proporcao": 1.3511340015102324,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 0.8543508052825928,
+        "memoria": 5098.59765625,
+        "tamanho": 280,
+        "proporcao": 1.1501686461644012,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 0.11087775230407715,
+        "memoria": 689.45703125,
+        "tamanho": 280,
+        "proporcao": 1.4993048457109794,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 5.897475957870483,
+        "memoria": 14470.2529296875,
+        "tamanho": 493,
+        "proporcao": 1.0968983584941412,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 0.44739675521850586,
+        "memoria": 1155.951171875,
+        "tamanho": 493,
+        "proporcao": 1.3180006735963412,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 14.674415826797485,
+        "memoria": 23434.103515625,
+        "tamanho": 657,
+        "proporcao": 1.1191179319969295,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 0.8508920669555664,
+        "memoria": 1475.7568359375,
+        "tamanho": 657,
+        "proporcao": 1.358493170682079,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 28.687129259109497,
+        "memoria": 44859.71875,
+        "tamanho": 783,
+        "proporcao": 1.1472716933589875,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 1.233769178390503,
+        "memoria": 1850.15625,
+        "tamanho": 783,
+        "proporcao": 1.3971354048814784,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 57.00141763687134,
+        "memoria": 67413.732421875,
+        "tamanho": 1060,
+        "proporcao": 1.1116254098476481,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 2.433405637741089,
+        "memoria": 2373.3359375,
+        "tamanho": 1060,
+        "proporcao": 1.380883177540627,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 14.81712007522583,
+        "memoria": 26439.318359375,
+        "tamanho": 1291,
+        "proporcao": 1.140339070294354,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 3.780090093612671,
+        "memoria": 2761.6640625,
+        "tamanho": 1291,
+        "proporcao": 1.4466935451840608,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 86.31607937812805,
+        "memoria": 101300.4921875,
+        "tamanho": 1817,
+        "proporcao": 1.1677463128197236,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 7.897567510604858,
+        "memoria": 3936.109375,
+        "tamanho": 1817,
+        "proporcao": 1.4993494219252137,
+        "tipo": "twice"
+    },
+    {
+        "tempo": 497.9060707092285,
+        "memoria": 531155.0390625,
+        "tamanho": 2319,
+        "proporcao": 1.161274888639145,
+        "tipo": "christofides"
+    },
+    {
+        "tempo": 16.981048822402954,
+        "memoria": 4833.78125,
+        "tamanho": 2319,
+        "proporcao": 1.5722068698595444,
+        "tipo": "twice"
+    }
+]
